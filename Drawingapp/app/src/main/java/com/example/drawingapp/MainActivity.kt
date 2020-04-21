@@ -1,32 +1,32 @@
 package com.example.drawingapp
 
+import android.Manifest
+import android.app.Activity
 import android.app.Dialog
+import android.content.Intent
+import android.content.pm.PackageManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.provider.MediaStore
+import android.provider.MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI
 import android.view.View
 import android.widget.ImageButton
+import android.widget.Toast
+import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.view.get
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.dialog_brush_size.*
+import java.lang.Exception
 
 class MainActivity : AppCompatActivity() {
 
-    private var mImageButtonCurrentPaint: ImageButton? =
-        null // A variable for current color is picked from color pallet.
+    private var mImageButtonCurrentPaint: ImageButton? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
-        drawing_view.setSizeForBrush(20.toFloat()) // Setting the default brush size to drawing view.
-
-        /**
-         * This is to select the default Image button which is
-         * active and color is already defined in the drawing view class.
-         * As the default color is black so in our color pallet it is on 2 position.
-         * But the array list start position is 0 so the black color is at position 1.
-         */
+        drawing_view.setSizeForBrush(20.toFloat())
         mImageButtonCurrentPaint = ll_paint_colors[1] as ImageButton
         mImageButtonCurrentPaint!!.setImageDrawable(
             ContextCompat.getDrawable(
@@ -34,15 +34,74 @@ class MainActivity : AppCompatActivity() {
                 R.drawable.pallet_pressed
             )
         )
-
         ib_brush.setOnClickListener {
             showBrushSizeChooserDialog()
         }
+
+        ib_gallery.setOnClickListener {
+            if (isReadStorageAllowed()) {
+                val pickPhoto = Intent(
+                    Intent.ACTION_PICK,
+                    MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+                )
+                startActivityForResult(pickPhoto, GALLERY)
+            } else {
+                requestStoragePermission()
+            }
+        }
     }
 
-    /**
-     * Method is used to launch the dialog to select different brush sizes.
-     */
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<String>,
+        grantResults: IntArray
+    ) {
+        if (requestCode == STORAGE_PERMISSION_CODE) {
+            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(
+                    this@MainActivity,
+                    "Permission granted now you can read the storage files.",
+                    Toast.LENGTH_LONG
+                ).show()
+            } else {
+                Toast.makeText(
+                    this@MainActivity,
+                    "Oops you just denied the permission.",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+        }
+    }
+
+    public override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (resultCode == Activity.RESULT_OK) {
+            if (requestCode == GALLERY) {
+                try {
+                    if (data!!.data != null) {
+
+
+                        iv_background.visibility = View.VISIBLE
+
+                        
+                        iv_background.setImageURI(data.data)
+                    } else {
+                        // If the selected image is not valid. Or not selected.
+                        Toast.makeText(
+                            this@MainActivity,
+                            "Error in parsing the image or its corrupted.",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }
+        }
+    }
+    // END
+
     private fun showBrushSizeChooserDialog() {
         val brushDialog = Dialog(this)
         brushDialog.setContentView(R.layout.dialog_brush_size)
@@ -66,12 +125,7 @@ class MainActivity : AppCompatActivity() {
         brushDialog.show()
     }
 
-    // TODO(Step 2 - A function for color selection.)
-    /**
-     * Method is called when color is clicked from pallet_normal.
-     *
-     * @param view ImageButton on which click took place.
-     */
+
     fun paintClicked(view: View) {
         if (view !== mImageButtonCurrentPaint) {
             // Update the color
@@ -93,5 +147,49 @@ class MainActivity : AppCompatActivity() {
             //Current view is updated with selected view in the form of ImageButton.
             mImageButtonCurrentPaint = view
         }
+    }
+
+
+    private fun requestStoragePermission() {
+
+
+        if (ActivityCompat.shouldShowRequestPermissionRationale(
+                this,
+                arrayOf(
+                    Manifest.permission.READ_EXTERNAL_STORAGE,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE
+                ).toString()
+            )
+        ) {
+
+        }
+
+
+
+        ActivityCompat.requestPermissions(
+            this, arrayOf(
+                Manifest.permission.READ_EXTERNAL_STORAGE,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE
+            ),
+            STORAGE_PERMISSION_CODE
+        )
+    }
+
+
+    private fun isReadStorageAllowed(): Boolean {
+
+        val result = ContextCompat.checkSelfPermission(
+            this, Manifest.permission.READ_EXTERNAL_STORAGE
+        )
+
+
+        return result == PackageManager.PERMISSION_GRANTED
+    }
+
+    companion object{
+
+        private const val STORAGE_PERMISSION_CODE = 1
+
+        private const val GALLERY = 2
     }
 }
