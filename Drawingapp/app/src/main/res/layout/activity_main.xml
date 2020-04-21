@@ -158,5 +158,25 @@
         android:layout_height="50dp"
 
         />
+    <ImageButton
+        android:id="@+id/ib_undo"
+        android:src="@drawable/ic_undo"
+        android:contentDescription="undo_button"
+        android:layout_width="50dp"
+        android:scaleType="fitXY"
+        android:layout_margin="5dp"
+        android:layout_height="50dp"
+
+        />
+    <ImageButton
+        android:id="@+id/ib_save"
+        android:src="@drawable/ic_save"
+        android:contentDescription="save_button"
+        android:layout_width="50dp"
+        android:scaleType="fitXY"
+        android:layout_margin="5dp"
+        android:layout_height="50dp"
+
+        />
 </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

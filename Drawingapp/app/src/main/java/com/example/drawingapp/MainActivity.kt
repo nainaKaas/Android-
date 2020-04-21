@@ -5,6 +5,10 @@ import android.app.Activity
 import android.app.Dialog
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.Color
+import android.os.AsyncTask
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.provider.MediaStore
@@ -17,16 +21,24 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.get
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.dialog_brush_size.*
+import java.io.ByteArrayOutputStream
+import java.io.File
+import java.io.FileOutputStream
 import java.lang.Exception
+
 
 class MainActivity : AppCompatActivity() {
 
-    private var mImageButtonCurrentPaint: ImageButton? = null
+    private var mImageButtonCurrentPaint: ImageButton? =
+        null // A variable for current color is picked from color pallet.
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        drawing_view.setSizeForBrush(20.toFloat())
+
+        drawing_view.setSizeForBrush(10.toFloat()) // Setting the default brush size to drawing view.
+
+
         mImageButtonCurrentPaint = ll_paint_colors[1] as ImageButton
         mImageButtonCurrentPaint!!.setImageDrawable(
             ContextCompat.getDrawable(
@@ -34,18 +46,42 @@ class MainActivity : AppCompatActivity() {
                 R.drawable.pallet_pressed
             )
         )
+
         ib_brush.setOnClickListener {
             showBrushSizeChooserDialog()
         }
 
         ib_gallery.setOnClickListener {
+
             if (isReadStorageAllowed()) {
+
+
                 val pickPhoto = Intent(
                     Intent.ACTION_PICK,
                     MediaStore.Images.Media.EXTERNAL_CONTENT_URI
                 )
                 startActivityForResult(pickPhoto, GALLERY)
             } else {
+
+                //If the app don't have storage access permission we will ask for it.
+                requestStoragePermission()
+            }
+        }
+
+        ib_undo.setOnClickListener {
+            // This is for undo recent stroke.
+            drawing_view.onClickUndo()
+        }
+
+        ib_save.setOnClickListener {
+
+            //First checking if the app is already having the permission
+            if (isReadStorageAllowed()) {
+
+                BitmapAsyncTask(getBitmapFromView(fl_drawing_view_container)).execute()
+            } else {
+
+                //If the app don't have storage access permission we will ask for it.
                 requestStoragePermission()
             }
         }
@@ -57,7 +93,11 @@ class MainActivity : AppCompatActivity() {
         permissions: Array<String>,
         grantResults: IntArray
     ) {
+
+        //Checking the request code of our request
         if (requestCode == STORAGE_PERMISSION_CODE) {
+
+            //If permission is granted
             if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 Toast.makeText(
                     this@MainActivity,
@@ -65,6 +105,7 @@ class MainActivity : AppCompatActivity() {
                     Toast.LENGTH_LONG
                 ).show()
             } else {
+                //Displaying another toast if permission is not granted
                 Toast.makeText(
                     this@MainActivity,
                     "Oops you just denied the permission.",
@@ -73,7 +114,6 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
-
     public override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (resultCode == Activity.RESULT_OK) {
@@ -81,10 +121,11 @@ class MainActivity : AppCompatActivity() {
                 try {
                     if (data!!.data != null) {
 
-
+                        // Here if the user selects the image from local storage make the image view visible.
+                        // By Default we will make it VISIBILITY as GONE.
                         iv_background.visibility = View.VISIBLE
 
-                        
+                        // Set the selected image to the backgroung view.
                         iv_background.setImageURI(data.data)
                     } else {
                         // If the selected image is not valid. Or not selected.
@@ -100,7 +141,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
-    // END
+
 
     private fun showBrushSizeChooserDialog() {
         val brushDialog = Dialog(this)
@@ -125,17 +166,14 @@ class MainActivity : AppCompatActivity() {
         brushDialog.show()
     }
 
-
     fun paintClicked(view: View) {
         if (view !== mImageButtonCurrentPaint) {
             // Update the color
             val imageButton = view as ImageButton
-            // Here the tag is used for swaping the current color with previous color.
-            // The tag stores the selected view
             val colorTag = imageButton.tag.toString()
-            // The color is set as per the selected tag here.
+
             drawing_view.setColor(colorTag)
-            // Swap the backgrounds for last active and currently active image button.
+
             imageButton.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.pallet_pressed))
             mImageButtonCurrentPaint!!.setImageDrawable(
                 ContextCompat.getDrawable(
@@ -144,7 +182,7 @@ class MainActivity : AppCompatActivity() {
                 )
             )
 
-            //Current view is updated with selected view in the form of ImageButton.
+
             mImageButtonCurrentPaint = view
         }
     }
@@ -165,7 +203,6 @@ class MainActivity : AppCompatActivity() {
         }
 
 
-
         ActivityCompat.requestPermissions(
             this, arrayOf(
                 Manifest.permission.READ_EXTERNAL_STORAGE,
@@ -174,7 +211,6 @@ class MainActivity : AppCompatActivity() {
             STORAGE_PERMISSION_CODE
         )
     }
-
 
     private fun isReadStorageAllowed(): Boolean {
 
@@ -186,10 +222,118 @@ class MainActivity : AppCompatActivity() {
         return result == PackageManager.PERMISSION_GRANTED
     }
 
-    companion object{
+    private fun getBitmapFromView(view: View): Bitmap {
+        val returnedBitmap = Bitmap.createBitmap(view.width, view.height, Bitmap.Config.ARGB_8888)
+        //Bind a canvas to it
+        val canvas = Canvas(returnedBitmap)
+        //Get the view's background
+        val bgDrawable = view.background
+        if (bgDrawable != null) {
+
+            bgDrawable.draw(canvas)
+        } else {
+
+            canvas.drawColor(Color.WHITE)
+        }
+
+        view.draw(canvas)
+
+        return returnedBitmap
+    }
+
+
+    private inner class BitmapAsyncTask(val mBitmap: Bitmap?) :
+        AsyncTask<Any, Void, String>() {
+
+
+
+        private lateinit var mProgressDialog: Dialog
+
+
+        override fun onPreExecute() {
+            super.onPreExecute()
+
+            showProgressDialog()
+
+        }
+
+        override fun doInBackground(vararg params: Any): String {
+
+            var result = ""
+
+            if (mBitmap != null) {
+
+                try {
+                    val bytes = ByteArrayOutputStream()
+
+
+                    mBitmap.compress(Bitmap.CompressFormat.PNG, 90, bytes)
+
+
+                    val f = File(
+                        externalCacheDir!!.absoluteFile.toString()
+                                + File.separator + "KidDrawingApp_" + System.currentTimeMillis() / 1000 + ".jpg"
+                    )
+
+
+                    val fo = FileOutputStream(f)
+                    fo.write(bytes.toByteArray())
+                    fo.close()
+                    result = f.absolutePath
+                } catch (e: Exception) {
+                    result = ""
+                    e.printStackTrace()
+                }
+            }
+            return result
+        }
+
+        override fun onPostExecute(result: String) {
+            super.onPostExecute(result)
+
+            cancelProgressDialog()
+
+
+            if (!result.isEmpty()) {
+                Toast.makeText(
+                    this@MainActivity,
+                    "File saved successfully :$result",
+                    Toast.LENGTH_SHORT
+                ).show()
+            } else {
+                Toast.makeText(
+                    this@MainActivity,
+                    "Something went wrong while saving the file.",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
+
+
+        private fun showProgressDialog() {
+            mProgressDialog = Dialog(this@MainActivity)
+
+            /*Set the screen content from a layout resource.
+            The resource will be inflated, adding all top-level views to the screen.*/
+            mProgressDialog.setContentView(R.layout.dialog_custom_progress)
+
+            //Start the dialog and display it on screen.
+            mProgressDialog.show()
+        }
+
+
+        private fun cancelProgressDialog() {
+            mProgressDialog.dismiss()
+        }
+        // END
+    }
+
+    companion object {
+
 
         private const val STORAGE_PERMISSION_CODE = 1
 
+        // This is to identify the selection of image from Gallery.
         private const val GALLERY = 2
     }
 }
