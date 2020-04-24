@@ -7,6 +7,7 @@
     tools:context=".ExerciseActivity">
 
 
+
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar_exercise_activity"
         android:layout_width="match_parent"
@@ -21,7 +22,7 @@
         android:gravity="center"
         android:orientation="vertical"
         android:visibility="visible"
-        tools:visibility="gone">
+        tools:visibility="visible">
 
         <TextView
             android:layout_width="wrap_content"
@@ -67,6 +68,24 @@
                     tools:text="10" />
             </LinearLayout>
         </FrameLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="UPCOMING EXERCISE : "
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/tvUpcomingExerciseName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:textColor="@color/colorAccent"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            tools:text="Exercise Name" />
+
     </LinearLayout>
 
     <LinearLayout
@@ -74,10 +93,11 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@id/toolbar_exercise_activity"
-        android:gravity="center"
+        android:gravity="bottom|center_horizontal"
         android:orientation="vertical"
         android:visibility="gone"
-        tools:visibility="visible">
+        tools:visibility="gone">
+
         <ImageView
             android:id="@+id/ivImage"
             android:layout_width="match_parent"
@@ -85,7 +105,7 @@
             android:layout_weight="1"
             android:contentDescription="@string/image"
             android:scaleType="fitXY"
-            android:src="@drawable/ic_jumping_jacks"/>
+            android:src="@drawable/ic_jumping_jacks" />
 
         <TextView
             android:id="@+id/tvExerciseName"
@@ -134,5 +154,12 @@
             </LinearLayout>
         </FrameLayout>
     </LinearLayout>
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvExerciseStatus"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_margin="5dp" />
 
 </RelativeLayout>
