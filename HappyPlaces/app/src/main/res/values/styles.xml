@@ -1,0 +1,18 @@
+<resources>
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/colorPrimaryDark</item>
+        <item name="colorPrimaryDark">@color/colorPrimary</item>
+        <item name="colorAccent">@color/colorPink</item>
+    </style>
+
+    <style name="CustomNoActionBarTheme" parent="@style/Theme.AppCompat.Light.NoActionBar">
+        <item name="android:statusBarColor">@color/colorPrimary</item>
+    </style>
+    <style name="CustomToolbarStyle">
+        <item name="android:textColorPrimary">@color/white_color</item>
+        <item name="android:colorControlNormal">@color/colorBrown</item>
+    </style>
+</resources>

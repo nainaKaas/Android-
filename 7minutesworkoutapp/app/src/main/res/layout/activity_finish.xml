@@ -35,7 +35,7 @@
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:contentDescription="@string/image"
-            android:src="@drawable/ic_action_done" />
+            android:src="@drawable/ic_done_black_24dp" />
     </LinearLayout>
 
     <TextView
