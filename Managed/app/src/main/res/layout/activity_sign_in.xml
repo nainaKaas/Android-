@@ -5,12 +5,13 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".SignInActivity">
+    tools:context=".activities.SignInActivity">
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar_sign_in_activity"
         android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize">
+        android:layout_height="?attr/actionBarSize"
+        android:background="@drawable/shape_button_rounded">
 
         <TextView
             android:id="@+id/tv_title"
@@ -61,7 +62,7 @@
                     android:layout_marginEnd="@dimen/authentication_screen_til_marginStartEnd">
 
                     <androidx.appcompat.widget.AppCompatEditText
-                        android:id="@+id/et_email"
+                        android:id="@+id/et_email_sign_in"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:hint="@string/email"
@@ -77,7 +78,7 @@
                     android:layout_marginEnd="@dimen/authentication_screen_til_marginStartEnd">
 
                     <androidx.appcompat.widget.AppCompatEditText
-                        android:id="@+id/et_password"
+                        android:id="@+id/et_password_sign_in"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:hint="@string/password"

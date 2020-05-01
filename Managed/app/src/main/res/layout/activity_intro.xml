@@ -3,10 +3,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-
     android:gravity="center_horizontal"
     android:orientation="vertical"
-    tools:context=".IntroActivity">
+    tools:context=".activities.IntroActivity">
 
     <TextView
         android:id="@+id/tv_app_name_intro"
@@ -30,7 +29,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/lets_get_started_text_marginTop"
         android:text="@string/let_s_get_started_text"
-        android:textColor="@color/primary_text_color"
+        android:textColor="@color/colorAccent"
         android:textSize="@dimen/lets_get_started_text_size" />
 
     <TextView

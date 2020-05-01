@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "1070746357983",
+    "firebase_url": "https://managed-b55db.firebaseio.com",
+    "project_id": "managed-b55db",
+    "storage_bucket": "managed-b55db.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1070746357983:android:30980b05bd5ef8215ad96a",
+        "android_client_info": {
+          "package_name": "com.example.managed"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1070746357983-v3q6b9ba76prsare27bi0ta5e901c5ph.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAsxLfjXHFZ_PQud7Q52xjuldANHO2lKlo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1070746357983-v3q6b9ba76prsare27bi0ta5e901c5ph.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
