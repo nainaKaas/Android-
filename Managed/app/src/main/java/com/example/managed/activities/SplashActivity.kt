@@ -7,12 +7,14 @@ import android.os.Bundle
 import android.os.Handler
 import android.view.WindowManager
 import com.example.managed.R
+import com.example.managed.firebase.FirestoreClass
 import kotlinx.android.synthetic.main.activity_splash.*
 
 
 class SplashActivity : BaseActivity() {
 
-    override fun onCreate(savedInstanceState: Bundle?) {
+    override fun onCreate(savedInstanceState: Bundle?)
+    {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_splash)
 
@@ -29,8 +31,19 @@ class SplashActivity : BaseActivity() {
 
         Handler().postDelayed({
 
-            startActivity(Intent(this@SplashActivity, IntroActivity::class.java))
+            val currentUserID = FirestoreClass().getCurrentUserID()
+
+
+            if (currentUserID.isNotEmpty()) {
+
+                startActivity(Intent(this@SplashActivity, MainActivity::class.java))
+            } else {
+
+                startActivity(Intent(this@SplashActivity, IntroActivity::class.java))
+            }
             finish()
+
         }, 2500)
+
     }
 }

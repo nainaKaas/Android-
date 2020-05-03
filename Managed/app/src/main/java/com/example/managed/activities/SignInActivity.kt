@@ -7,6 +7,7 @@ import android.text.TextUtils
 import android.view.WindowManager
 import android.widget.Toast
 import com.example.managed.R
+import com.example.managed.models.User
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.android.synthetic.main.activity_sign_in.*
 
@@ -32,6 +33,13 @@ class SignInActivity : BaseActivity() {
 
     }
 
+
+     fun signInSuccess(user : User)
+    {
+        hideProgressDialog()
+        startActivity(Intent(this,MainActivity::class.java))
+        finish()
+    }
     private fun setupActionBar() {
 
         setSupportActionBar(toolbar_sign_in_activity)
