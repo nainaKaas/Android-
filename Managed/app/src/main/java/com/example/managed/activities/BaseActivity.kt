@@ -43,7 +43,8 @@ open class BaseActivity : AppCompatActivity() {
     }
 
     fun doubleBackToExit() {
-        if (doubleBackToExitPressedOnce) {
+        if (doubleBackToExitPressedOnce)
+        {
             super.onBackPressed()
             return
         }

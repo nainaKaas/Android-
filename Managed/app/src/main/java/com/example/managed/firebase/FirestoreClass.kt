@@ -3,10 +3,8 @@ package com.example.managed.firebase
 import android.app.Activity
 import android.util.Log
 import android.widget.Toast
-import com.example.managed.activities.MainActivity
-import com.example.managed.activities.MyProfileActivity
-import com.example.managed.activities.SignInActivity
-import com.example.managed.activities.SignUpActivity
+import com.example.managed.activities.*
+import com.example.managed.models.Board
 import com.example.managed.models.User
 import com.example.managed.utils.Constants
 import com.google.firebase.auth.FirebaseAuth
@@ -29,10 +27,24 @@ class FirestoreClass {
             .addOnFailureListener { e ->
                 Log.e(
                     activity.javaClass.simpleName,
-                    "Error writing document",
-                    e
-                )
+                    "Error writing document", e)
             }
+    }
+    fun createBoard(activity: CreateBoardActivity,board: Board)
+    {
+        mFireStore.collection(Constants.BOARDS).document().set(board, SetOptions.merge()).addOnSuccessListener {
+            Log.e(activity.javaClass.simpleName,"Noard created successfully.")
+
+            Toast.makeText(activity,"Board created successfully.",Toast.LENGTH_SHORT).show()
+            activity.boardCreatedSuccessfully()
+        }.addOnFailureListener{
+            exception ->
+            activity.hideProgressDialog()
+            Log.e(
+                activity.javaClass.simpleName,
+                "Error while creating a board.",exception
+            )
+        }
     }
 
     fun updateUserProfileData(activity: MyProfileActivity, userHashMap: HashMap<String, Any>) {
