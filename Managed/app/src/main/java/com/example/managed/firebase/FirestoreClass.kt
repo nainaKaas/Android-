@@ -67,7 +67,7 @@ class FirestoreClass {
                 )
             }
     }
-    fun loadUserData(activity: Activity)
+    fun loadUserData(activity: Activity,readsBoardList: Boolean = false)
     {
         mFireStore.collection(Constants.USERS)
             .document(getCurrentUserID())
@@ -85,7 +85,7 @@ class FirestoreClass {
 
                     is MainActivity ->
                     {
-                        activity.updateNavigationUserDetails(loggedInUser)
+                        activity.updateNavigationUserDetails(loggedInUser,readsBoardList)
                     }
                     is MyProfileActivity ->
                     {
@@ -117,6 +117,25 @@ class FirestoreClass {
             }
 
     }
+
+    fun getBoardDetails(activity: TestListActivity,documentId : String)
+    {
+        mFireStore.collection(Constants.BOARDS)
+            .document(documentId)
+            .get()
+            .addOnSuccessListener {
+                document ->
+            Log.i(activity.javaClass.simpleName,document.toString())
+
+            activity.boardDetails(document.toObject(Board::class.java)!!)
+        }.addOnFailureListener {
+                e ->
+            activity.hideProgressDialog()
+            Log.e(activity.javaClass.simpleName,"Error while creating a board",e)
+        }
+
+    }
+
     fun getCurrentUserID(): String {
 
         val currentUser = FirebaseAuth.getInstance().currentUser
@@ -126,6 +145,28 @@ class FirestoreClass {
         }
 
         return currentUserID
+
+    }
+
+    fun getTheBoardList(activity: MainActivity)
+    {
+        mFireStore.collection(Constants.BOARDS).whereArrayContains(Constants.ASSIGNED_TO,getCurrentUserID()).get().addOnSuccessListener {
+            document ->
+            Log.i(activity.javaClass.simpleName,document.documents.toString())
+
+            val boardList : ArrayList<Board> = ArrayList()
+            for(i in document.documents)
+            {
+                val board = i.toObject(Board::class.java)!!
+                board.documentId = i.id
+                boardList.add(board)
+            }
+            activity.populateBoardListToUI(boardList)
+        }.addOnFailureListener {
+            e ->
+            activity.hideProgressDialog()
+            Log.e(activity.javaClass.simpleName,"Error while creating a board",e)
+        }
 
     }
 }

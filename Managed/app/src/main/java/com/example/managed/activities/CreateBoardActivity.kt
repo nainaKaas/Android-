@@ -132,7 +132,6 @@ class CreateBoardActivity : BaseActivity() {
 
         sRef.putFile(mSelectedImageFileUri!!)
             .addOnSuccessListener { taskSnapshot ->
-                // The image upload is success
                 Log.i(
                     "Board Image URL",
                     taskSnapshot.metadata!!.reference!!.downloadUrl.toString()
@@ -158,11 +157,14 @@ class CreateBoardActivity : BaseActivity() {
     fun boardCreatedSuccessfully()
     {
         hideProgressDialog()
+
+        setResult(Activity.RESULT_OK)
         finish()
     }
 
 
-    private fun setupActionBar() {
+    private fun setupActionBar()
+    {
 
         setSupportActionBar(toolbar_create_board_activity)
 

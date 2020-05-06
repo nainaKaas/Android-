@@ -7,19 +7,24 @@ import android.os.Bundle
 import android.util.Log
 import android.view.Gravity
 import android.view.MenuItem
+import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.core.view.GravityCompat
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.example.managed.R
+import com.example.managed.adapters.BoardsItemsAdapter
 import com.example.managed.firebase.FirestoreClass
+import com.example.managed.models.Board
 import com.example.managed.models.User
 import com.example.managed.utils.Constants
 import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
+import kotlinx.android.synthetic.main.content_main.*
 import kotlinx.android.synthetic.main.nav_header_main.*
 
 class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedListener {
@@ -32,12 +37,12 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         setupActionBar()
         nav_view.setNavigationItemSelectedListener(this)
 
-        FirestoreClass().loadUserData(this@MainActivity)
+        FirestoreClass().loadUserData(this@MainActivity,true)
 
         fab_create_board.setOnClickListener {
             val intent = Intent(this@MainActivity, CreateBoardActivity::class.java)
             intent.putExtra(Constants.NAME,mUserName)
-            startActivity(intent)
+            startActivityForResult(intent, CREATE_BOARD_REQUEST_CODE)
         }
 
     }
@@ -78,11 +83,46 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         if (resultCode == Activity.RESULT_OK
             && requestCode == MY_PROFILE_REQUEST_CODE
         ) {
-            // Get the user updated details.
+
             FirestoreClass().loadUserData(this@MainActivity)
-        } else {
+        } else if(resultCode == Activity.RESULT_OK
+            && requestCode == CREATE_BOARD_REQUEST_CODE)
+        {
+            FirestoreClass().getTheBoardList(this)
+        }
+        else {
             Log.e("Cancelled", "Cancelled")
         }
+    }
+
+    fun populateBoardListToUI(boardsList: ArrayList<Board>)
+    {
+        hideProgressDialog()
+        if (boardsList.size > 0)
+        {
+            rv_boards_list.visibility = View.VISIBLE
+            tv_no_boards_available.visibility = View.GONE
+
+            rv_boards_list.layoutManager = LinearLayoutManager(this)
+            rv_boards_list.setHasFixedSize(true)
+
+            val adapter = BoardsItemsAdapter(this,boardsList)
+            rv_boards_list.adapter = adapter
+
+            adapter.setOnClickListner(object : BoardsItemsAdapter.OnClickListener
+            {
+                override fun onClick(position: Int, model: Board) {
+                    val intent = Intent(this@MainActivity,TestListActivity::class.java)
+                    intent.putExtra(Constants.DOCUMENT_ID,model.documentId)
+                    startActivity(intent)
+                }
+            })
+        }
+        else{
+            rv_boards_list.visibility = View.GONE
+            tv_no_boards_available.visibility = View.VISIBLE
+        }
+
     }
     private fun setupActionBar() {
 
@@ -103,7 +143,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         }
     }
 
-    fun updateNavigationUserDetails(user: User) {
+    fun updateNavigationUserDetails(user: User,readBoardList: Boolean) {
 
         val headerView = nav_view.getHeaderView(0)
         mUserName = user.name
@@ -121,9 +161,16 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         val navUsername = headerView.findViewById<TextView>(R.id.tv_username)
 
         navUsername.text = user.name
+
+        if (readBoardList)
+        {
+            showProgressDialog(resources.getString(R.string.please_wait))
+            FirestoreClass().getTheBoardList(this)
+        }
     }
 
     companion object {
         const val MY_PROFILE_REQUEST_CODE: Int = 11
+        const val CREATE_BOARD_REQUEST_CODE: Int = 12
     }
 }
