@@ -9,7 +9,6 @@ import android.webkit.MimeTypeMap
 object Constants {
 
     const val USERS: String = "users"
-
     const val BOARDS:String = "boards"
     const val IMAGE: String = "image"
     const val NAME: String = "name"
@@ -18,7 +17,7 @@ object Constants {
     const val READ_STORAGE_PERMISSION_CODE = 1
     const val PICK_IMAGE_REQUEST_CODE = 2
     const val DOCUMENT_ID : String = "documentId"
-
+    const val TASK_LIST : String = "taskList"
     fun showImageChooser(activity: Activity) {
         val galleryIntent = Intent(
             Intent.ACTION_PICK,
