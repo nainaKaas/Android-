@@ -16,6 +16,7 @@ import com.example.managed.firebase.FirestoreClass
 import com.example.managed.models.Board
 import com.example.managed.models.Card
 import com.example.managed.models.Task
+import com.example.managed.models.User
 import com.example.managed.utils.Constants
 import kotlinx.android.synthetic.main.activity_create_board.*
 import kotlinx.android.synthetic.main.activity_test_list.*
@@ -25,6 +26,7 @@ class TestListActivity : BaseActivity() {
 
     // A global variable for Board Details.
     private lateinit var mBoardDetails: Board
+    lateinit var mAssignedMemberDetailList :ArrayList<User>
 
     // A global variable for board document id as mBoardDocumentId
     private lateinit var mBoardDocumentId: String
@@ -42,9 +44,6 @@ class TestListActivity : BaseActivity() {
         FirestoreClass().getBoardDetails(this@TestListActivity, mBoardDocumentId)
     }
 
-    /**
-     * A function to setup action bar
-     */
     private fun setupActionBar() {
 
         setSupportActionBar(toolbar_task_list_activity)
@@ -79,22 +78,25 @@ class TestListActivity : BaseActivity() {
         return super.onOptionsItemSelected(item)
     }
 
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
+
         if (resultCode == Activity.RESULT_OK
-            && requestCode == MEMBERS_REQUEST_CODE
+            && (requestCode == MEMBERS_REQUEST_CODE || requestCode == CARD_DETAILS_REQUEST_CODE)
         ) {
-            // Show the progress dialog.
+
             showProgressDialog(resources.getString(R.string.please_wait))
             FirestoreClass().getBoardDetails(this@TestListActivity, mBoardDocumentId)
-        } else {
+        }
+        else {
             Log.e("Cancelled", "Cancelled")
         }
     }
 
-    /**
-     * A function to get the result of Board Detail.
-     */
+
+
+
     fun boardDetails(board: Board) {
 
         mBoardDetails = board
@@ -105,16 +107,10 @@ class TestListActivity : BaseActivity() {
         setupActionBar()
 
         // Here we are appending an item view for adding a list task list for the board.
-        val addTaskList = Task(resources.getString(R.string.add_list))
-        mBoardDetails.taskList.add(addTaskList)
-
-        rv_task_list.layoutManager =
-            LinearLayoutManager(this@TestListActivity, LinearLayoutManager.HORIZONTAL, false)
-        rv_task_list.setHasFixedSize(true)
 
 
-        val adapter = TaskListItemAdapter(this@TestListActivity, mBoardDetails.taskList)
-        rv_task_list.adapter = adapter
+        showProgressDialog(resources.getString(R.string.please_wait))
+        FirestoreClass().getAssignedMembersListDetails(this,mBoardDetails.assignedTo)
     }
 
     fun createTaskList(taskListName: String) {
@@ -138,7 +134,6 @@ class TestListActivity : BaseActivity() {
         mBoardDetails.taskList[position] = task
         mBoardDetails.taskList.removeAt(mBoardDetails.taskList.size - 1)
 
-        // Show the progress dialog.
         showProgressDialog(resources.getString(R.string.please_wait))
         FirestoreClass().addUpdateTaskList(this@TestListActivity, mBoardDetails)
     }
@@ -164,7 +159,6 @@ class TestListActivity : BaseActivity() {
 
     fun addCardToTaskList(position: Int, cardName: String) {
 
-        // Remove the last item
         mBoardDetails.taskList.removeAt(mBoardDetails.taskList.size - 1)
 
         val cardAssignedUsersList: ArrayList<String> = ArrayList()
@@ -192,11 +186,30 @@ class TestListActivity : BaseActivity() {
         intent.putExtra(Constants.BOARDS_DETAIL,mBoardDetails)
         intent.putExtra(Constants.TASK_LIST_ITEM_POSITION,taskListPosition)
         intent.putExtra(Constants.CARD_LIST_ITEM_POSITION,cardPosition)
-        startActivity(intent)
+        intent.putExtra(Constants.BOARD_MEMBERS_LIST,mAssignedMemberDetailList)
+        startActivityForResult(intent, CARD_DETAILS_REQUEST_CODE)
     }
 
-    companion object {
-        //A unique code for starting the activity for result
+    fun boardMembersDetailList(list : ArrayList<User>)
+    {
+        mAssignedMemberDetailList = list
+         hideProgressDialog()
+
+        val addTaskList = Task(resources.getString(R.string.add_list))
+        mBoardDetails.taskList.add(addTaskList)
+
+        rv_task_list.layoutManager =
+            LinearLayoutManager(this@TestListActivity, LinearLayoutManager.HORIZONTAL, false)
+        rv_task_list.setHasFixedSize(true)
+
+
+        val adapter = TaskListItemAdapter(this@TestListActivity, mBoardDetails.taskList)
+        rv_task_list.adapter = adapter
+
+    }
+    companion object
+    {
         const val MEMBERS_REQUEST_CODE: Int = 13
+        const val CARD_DETAILS_REQUEST_CODE: Int = 14
     }
 }

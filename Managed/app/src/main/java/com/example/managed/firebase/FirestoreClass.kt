@@ -47,19 +47,32 @@ class FirestoreClass {
         }
     }
 
-    fun addUpdateTaskList(activity: TestListActivity,board: Board)
+    fun addUpdateTaskList(activity: Activity, board: Board)
     {
-        val taskListHashMap = HashMap<String,Any>()
+
+        val taskListHashMap = HashMap<String, Any>()
         taskListHashMap[Constants.TASK_LIST] = board.taskList
 
-        mFireStore.collection(Constants.BOARDS).document(board.documentId).update(taskListHashMap).addOnSuccessListener {
-            Log.e(activity.javaClass.simpleName,"Tasklist updated successfully")
-            activity.addUpdateTaskListSuccess()
-        }.addOnFailureListener {
-            exception ->
-            activity.hideProgressDialog()
-            Log.e(activity.javaClass.simpleName,"Error while creating a board",exception)
-        }
+        mFireStore.collection(Constants.BOARDS)
+            .document(board.documentId)
+            .update(taskListHashMap)
+            .addOnSuccessListener {
+                Log.e(activity.javaClass.simpleName, "TaskList updated successfully.")
+
+                if (activity is TestListActivity) {
+                    activity.addUpdateTaskListSuccess()
+                } else if (activity is CardDetailsActivity) {
+                    activity.addUpdateTaskListSuccess()
+                }
+            }
+            .addOnFailureListener { e ->
+                if (activity is TestListActivity) {
+                    activity.hideProgressDialog()
+                } else if (activity is TestListActivity) {
+                    activity.hideProgressDialog()
+                }
+                Log.e(activity.javaClass.simpleName, "Error while creating a board.", e)
+            }
     }
 
     fun updateUserProfileData(activity: MyProfileActivity, userHashMap: HashMap<String, Any>) {
@@ -186,7 +199,7 @@ class FirestoreClass {
         }
 
     }
-    fun getAssignedMembersListDetails(activity: MembersActivity, assignedTo: ArrayList<String>) {
+    fun getAssignedMembersListDetails(activity: Activity, assignedTo: ArrayList<String>) {
 
         mFireStore.collection(Constants.USERS) // Collection Name
             .whereIn(Constants.ID, assignedTo) // Here the database field name and the id's of the members.
@@ -201,11 +214,16 @@ class FirestoreClass {
                     val user = i.toObject(User::class.java)!!
                     usersList.add(user)
                 }
-
-                activity.setupMembersList(usersList)
+                if(activity is MembersActivity)
+                    activity.setupMembersList(usersList)
+                else if(activity is TestListActivity)
+                    activity.boardMembersDetailList(usersList)
             }
             .addOnFailureListener { e ->
-                activity.hideProgressDialog()
+                if(activity is MembersActivity)
+                    activity.hideProgressDialog()
+                else if(activity is TestListActivity)
+                    activity.hideProgressDialog()
                 Log.e(
                     activity.javaClass.simpleName,
                     "Error while creating a board.",
