@@ -8,20 +8,20 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.managed.R
+import com.example.managed.models.SelectedMembers
 import com.example.managed.models.User
 import com.example.managed.utils.Constants
+import kotlinx.android.synthetic.main.item_card_selected_member.view.*
 import kotlinx.android.synthetic.main.item_member.view.*
-
 
 open class MemberListItemsAdapter(
     private val context: Context,
     private var list: ArrayList<User>
-) : RecyclerView.Adapter<RecyclerView.ViewHolder>()
-{
+) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private var onClickListener: OnClickListener? = null
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder
-    {
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return MyViewHolder(
             LayoutInflater.from(context).inflate(
                 R.layout.item_member,
@@ -47,44 +47,36 @@ open class MemberListItemsAdapter(
             holder.itemView.tv_member_name.text = model.name
             holder.itemView.tv_member_email.text = model.email
 
-            if (model.selected)
-            {
-
+            if (model.selected) {
                 holder.itemView.iv_selected_member.visibility = View.VISIBLE
-            }
-            else
-            {
+            } else {
                 holder.itemView.iv_selected_member.visibility = View.GONE
             }
-            holder.itemView.setOnClickListener{
 
-                if(onClickListener != null)
-                {
-                    if(model.selected)
-                    {
-                        onClickListener!!.onClick(position,model,Constants.UN_SELECT)
-                    }
-                    else
-                    {
-                        onClickListener!!.onClick(position,model,Constants.SELECT)
+            holder.itemView.setOnClickListener {
+
+                if (onClickListener != null) {
+                    if (model.selected) {
+                        onClickListener!!.onClick(position, model, Constants.UN_SELECT)
+                    } else {
+                        onClickListener!!.onClick(position, model, Constants.SELECT)
                     }
                 }
             }
         }
     }
 
-    override fun getItemCount(): Int
-    {
+    override fun getItemCount(): Int {
         return list.size
-    }
-    class MyViewHolder(view: View) : RecyclerView.ViewHolder(view)
-
-    interface OnClickListener {
-        fun onClick(position: Int,user: User,action :String)
     }
 
     fun setOnClickListener(onClickListener: OnClickListener) {
         this.onClickListener = onClickListener
     }
 
+    interface OnClickListener {
+        fun onClick(position: Int, user: User, action: String)
+    }
+
+    class MyViewHolder(view: View) : RecyclerView.ViewHolder(view)
 }

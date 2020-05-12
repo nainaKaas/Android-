@@ -3,17 +3,20 @@ package com.example.managed.models
 import android.os.Parcel
 import android.os.Parcelable
 
+
 data class Card(
     val name: String = "",
     val createdBy: String = "",
     val assignedTo: ArrayList<String> = ArrayList(),
-    val labelColor: String = ""
+    val labelColor: String = "",
+    val dueDate: Long = 0
 ) : Parcelable {
     constructor(source: Parcel) : this(
         source.readString()!!,
         source.readString()!!,
         source.createStringArrayList()!!,
-        source.readString()!!
+        source.readString()!!,
+        source.readLong()
     )
 
     override fun describeContents() = 0
@@ -23,6 +26,7 @@ data class Card(
         writeString(createdBy)
         writeStringList(assignedTo)
         writeString(labelColor)
+        writeLong(dueDate)
     }
 
     companion object {

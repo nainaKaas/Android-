@@ -10,16 +10,16 @@ import com.example.managed.R
 import com.example.managed.models.SelectedMembers
 import kotlinx.android.synthetic.main.item_card_selected_member.view.*
 
+
 open class CardMemberListItemsAdapter(
     private val context: Context,
     private var list: ArrayList<SelectedMembers>,
     private val assignMembers: Boolean
-) : RecyclerView.Adapter<RecyclerView.ViewHolder>()
-{
+) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private var onClickListener: OnClickListener? = null
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder
-    {
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return MyViewHolder(
             LayoutInflater.from(context).inflate(
                 R.layout.item_card_selected_member,
@@ -29,8 +29,8 @@ open class CardMemberListItemsAdapter(
         )
     }
 
-    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int)
-    {
+
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val model = list[position]
 
         if (holder is MyViewHolder) {
@@ -58,9 +58,7 @@ open class CardMemberListItemsAdapter(
         }
     }
 
-    override fun getItemCount(): Int
-
-    {
+    override fun getItemCount(): Int {
         return list.size
     }
 
@@ -68,8 +66,7 @@ open class CardMemberListItemsAdapter(
         this.onClickListener = onClickListener
     }
 
-    interface OnClickListener
-    {
+    interface OnClickListener {
         fun onClick()
     }
 

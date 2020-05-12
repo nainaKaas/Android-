@@ -49,7 +49,7 @@ class BoardsItemsAdapter(private val context : Context,
     {
         fun onClick(position: Int,model: Board)
     }
-    fun setOnClickListner(onClickListener: OnClickListener)
+    fun setOnClickListener(onClickListener: OnClickListener)
     {
         this.onClickListener = onClickListener
     }
